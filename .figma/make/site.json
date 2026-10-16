@@ -1,0 +1,10 @@
+{
+  "description": "Capture and share travel memories with a vibrant feed and map interface, allowing users to document experiences privately or publicly.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

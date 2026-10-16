@@ -1,0 +1,18 @@
+{
+  "short_name": "Gypsy Memo",
+  "name": "Gypsy Memo - Every Place Has a Memory",
+  "description": "Interactive 3D travel memories, mutual messaging, and world map.",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ece6d3",
+  "theme_color": "#0e5e6f",
+  "display": "standalone",
+  "orientation": "portrait-primary"
+}

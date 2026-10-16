@@ -42,8 +42,8 @@ export interface UserProfile {
 }
 
 export const defaultUserProfile: UserProfile = {
-  name: "Deepak",
-  handle: "@deepak_memo",
+  name: "Explorer",
+  handle: "@explorer",
   bio: "Capturing coastlines, hilltops, and roadside chai moments.",
   location: "Tamil Nadu, India",
   avatar: "/logo.png",
@@ -281,7 +281,28 @@ function FeedScreen({
         <div className="feed-intro">
           <div>
             <span className="eyebrow">Your travel circle</span>
-            <h1>{getGreeting()}, {userProfile.name}</h1>
+            <h1 style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+              <span>{getGreeting()}, {userProfile.name}</span>
+              <button
+                onClick={() => navigate("profile")}
+                title="Change your profile name"
+                style={{
+                  fontSize: "12px",
+                  padding: "2px 9px",
+                  borderRadius: "999px",
+                  background: "color-mix(in srgb, var(--yellow) 35%, transparent)",
+                  border: "1px solid var(--line)",
+                  cursor: "pointer",
+                  fontWeight: 700,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "3px",
+                  verticalAlign: "middle"
+                }}
+              >
+                ✏️ Edit
+              </button>
+            </h1>
           </div>
           <div className="sun-sticker"><Icon name="sun" size={23} /></div>
         </div>
@@ -1646,10 +1667,10 @@ function ProfileScreen({
 
               <div className="form-card">
                 <Field icon="profile" label="Your Name">
-                  <input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="e.g. Deepak" />
+                  <input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="e.g. Arun Kumar" />
                 </Field>
                 <Field icon="pin" label="Username / Handle">
-                  <input value={editHandle} onChange={(e) => setEditHandle(e.target.value)} placeholder="e.g. @deepak_memo" />
+                  <input value={editHandle} onChange={(e) => setEditHandle(e.target.value)} placeholder="e.g. @arun_wander" />
                 </Field>
                 <Field icon="map" label="Your Location">
                   <input value={editLocation} onChange={(e) => setEditLocation(e.target.value)} placeholder="e.g. Tamil Nadu, India" />
@@ -1696,6 +1717,88 @@ function ProfileScreen({
         </div>
       </main>
       <BottomNav screen="profile" navigate={navigate} />
+    </div>
+  );
+}
+
+function WelcomeModal({
+  isOpen,
+  onSave,
+}: {
+  isOpen: boolean;
+  onSave: (profile: UserProfile) => void;
+}) {
+  const [name, setName] = useState("");
+  const [handle, setHandle] = useState("");
+  const [location, setLocation] = useState("Tamil Nadu, India");
+  const [bio, setBio] = useState("Capturing memories along the way 🌿");
+
+  if (!isOpen) return null;
+
+  const handleNameChange = (val: string) => {
+    setName(val);
+    const cleaned = val.trim().toLowerCase().replace(/[^a-z0-9]/g, "_");
+    setHandle(cleaned ? `@${cleaned}` : "");
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const finalName = name.trim() || "Explorer";
+    const finalHandle = handle.trim() || `@${finalName.toLowerCase().replace(/[^a-z0-9]/g, "_")}`;
+    onSave({
+      name: finalName,
+      handle: finalHandle,
+      location: location.trim() || "Tamil Nadu, India",
+      bio: bio.trim(),
+      avatar: "/logo.png",
+    });
+  };
+
+  return (
+    <div className="add-memory-overlay" style={{ zIndex: 9999 }}>
+      <div className="add-memory-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "420px", margin: "auto" }}>
+        <div style={{ textAlign: "center", marginBottom: "16px" }}>
+          <div style={{ width: "58px", height: "58px", margin: "0 auto 10px", borderRadius: "16px", overflow: "hidden", border: "2px solid var(--yellow)", background: "#000", display: "grid", placeItems: "center" }}>
+            <img src="/logo.png" alt="Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
+          <h2 style={{ fontSize: "21px", fontWeight: 900, margin: "0 0 5px" }}>Welcome to Gypsy Memo! 🌍</h2>
+          <p style={{ fontSize: "12px", color: "var(--muted)", margin: 0 }}>Enter your name to personalize your travel memories</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="form-card">
+          <Field icon="profile" label="Your Name *">
+            <input
+              required
+              value={name}
+              onChange={(e) => handleNameChange(e.target.value)}
+              placeholder="e.g. Rahul, Nila, Deepak..."
+              autoFocus
+            />
+          </Field>
+          <Field icon="pin" label="Username / Handle">
+            <input
+              value={handle}
+              onChange={(e) => setHandle(e.target.value)}
+              placeholder="e.g. @username"
+            />
+          </Field>
+          <Field icon="map" label="Your City / Location">
+            <input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="e.g. Chennai, Tamil Nadu"
+            />
+          </Field>
+
+          <button
+            type="submit"
+            className="primary-button"
+            style={{ width: "100%", marginTop: "16px" }}
+          >
+            Start My Journey 🚀
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
@@ -1857,6 +1960,19 @@ export default function App() {
     } catch {}
   };
 
+  const [showWelcome, setShowWelcome] = useState(() => {
+    try {
+      return !localStorage.getItem("gypsy_user_profile");
+    } catch {
+      return false;
+    }
+  });
+
+  const handleWelcomeSave = (newProfile: UserProfile) => {
+    handleUpdateProfile(newProfile);
+    setShowWelcome(false);
+  };
+
   // Load memories from localStorage if available
   const [memories, setMemories] = useState<PlaceMemory[]>(() => {
     try {
@@ -1883,6 +1999,7 @@ export default function App() {
   return (
     <div className={`app-shell ${dark ? "dark" : ""}`}>
       <div className="phone-frame">
+        <WelcomeModal isOpen={showWelcome} onSave={handleWelcomeSave} />
         {screen === "feed" && (
           <FeedScreen
             navigate={setScreen}

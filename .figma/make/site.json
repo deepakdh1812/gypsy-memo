@@ -1,5 +1,9 @@
 {
+  "title": "Gypsy Memo - Every Place Has a Memory",
   "description": "Capture and share travel memories with a vibrant feed and map interface, allowing users to document experiences privately or publicly.",
+  "icons": {
+    "icon": "/logo.png"
+  },
   "robots": {
     "index": false
   },
